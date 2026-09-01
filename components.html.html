@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechCraft | Hardware, Custom Builds & Pentest Gear</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+
+  <nav class="navbar">
+    <div class="logo">TechCraft <span>Hardware</span></div>
+    <ul class="nav-links">
+      <li><a href="#components">Components</a></li>
+      <li><a href="#custom-projects">Custom Projects</a></li>
+      <li><a href="#security-gear">Security Gear</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero hidden">
+    <h1>Next-Gen Robotics & Security Hardware</h1>
+    <p>Your one-stop hub for microcontrollers, custom on-demand models, and hardware security tools.</p>
+    <a href="#components" class="btn btn-primary pulse-btn">Explore Store</a>
+  </header>
+
+  <section id="components" class="section hidden">
+    <h2>Robotics & IoT Components</h2>
+    <div class="product-grid">
+      <div class="card">
+        <div class="card-glow"></div>
+        <h3>ESP32 Wi-Fi + BT Board</h3>
+        <p>Dual-core microcontroller with built-in Wi-Fi and Bluetooth.</p>
+        <span class="price">$6.50</span>
+        <button class="btn btn-add" onclick="addToCart(this, 'ESP32 Board')">Add to Cart</button>
+      </div>
+      <div class="card">
+        <div class="card-glow"></div>
+        <h3>NRF24L01+ Transceiver</h3>
+        <p>2.4GHz RF wireless transceiver module for long-range communication.</p>
+        <span class="price">$2.20</span>
+        <button class="btn btn-add" onclick="addToCart(this, 'NRF24L01 Module')">Add to Cart</button>
+      </div>
+      <div class="card">
+        <div class="card-glow"></div>
+        <h3>Ultrasonic Sensor HC-SR04</h3>
+        <p>High-precision distance measurement module for autonomous builds.</p>
+        <span class="price">$1.80</span>
+        <button class="btn btn-add" onclick="addToCart(this, 'HC-SR04 Sensor')">Add to Cart</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="custom-projects" class="section alt-bg hidden">
+    <h2>On-Demand Custom Projects</h2>
+    <p>Request custom 3D printed chassis, smart IoT automation, or custom PCB prototypes built to your specs.</p>
+    
+    <form id="project-form" onsubmit="submitCustomOrder(event)">
+      <div class="form-group">
+        <label for="project-type">Project Type:</label>
+        <select id="project-type" required>
+          <option value="IoT System">IoT / Smart Automation System</option>
+          <option value="Robotics Chassis">Custom Robotics & 3D Printed Chassis</option>
+          <option value="Custom PCB">Custom PCB Design & Assembly</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="details">Project Requirements & Specifications:</label>
+        <textarea id="details" rows="4" placeholder="Describe MCUs, sensors, dimensions, or features needed..." required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="budget">Estimated Budget Range:</label>
+        <select id="budget">
+          <option value="Under $50">Under $50</option>
+          <option value="$50 - $150">$50 - $150</option>
+          <option value="$150+">$150+</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary shimmer-btn">Submit Project Request</button>
+    </form>
+  </section>
+
+  <section id="security-gear" class="section hidden">
+    <h2>Security & Hardware Pentesting Tools</h2>
+    <div class="product-grid">
+      <div class="card security-card">
+        <div class="card-glow"></div>
+        <h3>HackRF One SDR</h3>
+        <p>Software Defined Radio receiver/transmitter covering 1 MHz to 6 GHz.</p>
+        <span class="price">$180.00</span>
+        <button class="btn warning-btn" onclick="openDisclaimer('HackRF One SDR')">Buy Tool</button>
+      </div>
+      <div class="card security-card">
+        <div class="card-glow"></div>
+        <h3>ESP8266 Deauther Board</h3>
+        <p>Open-source Wi-Fi packet research and pentesting board.</p>
+        <span class="price">$15.00</span>
+        <button class="btn warning-btn" onclick="openDisclaimer('ESP8266 Deauther')">Buy Tool</button>
+      </div>
+      <div class="card security-card">
+        <div class="card-glow"></div>
+        <h3>BadUSB / Ducky Drive</h3>
+        <p>Programmable keystroke injection tool for penetration testing.</p>
+        <span class="price">$22.00</span>
+        <button class="btn warning-btn" onclick="openDisclaimer('BadUSB Drive')">Buy Tool</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <h3>Authorized Use Agreement</h3>
+      <p>By purchasing security/pentesting hardware, you agree that this equipment will be used strictly for **educational purposes, security research, and authorized penetration testing** on networks/devices you own or have explicit written authorization to test.</p>
+      <label class="checkbox-container">
+        <input type="checkbox" id="agree-checkbox"> I agree to the compliance terms and local regulations.
+      </label>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmSecurityPurchase()">Proceed to Checkout</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
