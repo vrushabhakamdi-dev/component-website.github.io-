@@ -1,4 +1,4 @@
-// --- Default Configuration & Inventory ---
+// Default Configuration & Inventory
 const ADMIN_USER = "admin";
 const ADMIN_PASSWORD = "password123"; 
 const DEFAULT_IMG = "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&auto=format&fit=crop&q=60";
@@ -11,7 +11,7 @@ const defaultProducts = [
   { id: 5, name: "ESP8266 Deauther Board", price: "15.00", desc: "Open-source Wi-Fi packet research and pentesting board.", section: "security", inStock: true, image: DEFAULT_IMG }
 ];
 
-// --- 1. Intersection Observer for Scroll Animations ---
+// Intersection Observer for Scroll Animations
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) entry.target.classList.add('show');
@@ -20,7 +20,7 @@ const observer = new IntersectionObserver((entries) => {
 
 document.querySelectorAll('.hidden').forEach((el) => observer.observe(el));
 
-// --- 2. Store Rendering & LocalStorage Management ---
+// LocalStorage Helper
 function getStoredProducts() {
   const stored = localStorage.getItem("store_products");
   if (!stored) {
@@ -30,6 +30,7 @@ function getStoredProducts() {
   return JSON.parse(stored);
 }
 
+// Render Products & Admin Data
 function renderAllProducts() {
   const products = getStoredProducts();
   const compGrid = document.querySelector("#components .product-grid");
@@ -101,7 +102,7 @@ function renderAllProducts() {
   });
 }
 
-// --- 3. Customer Actions & Form Submissions ---
+// User Cart & Project Submissions
 function addToCart(buttonElement, itemName) {
   const originalText = buttonElement.innerText;
   buttonElement.innerText = "✓ Added!";
@@ -137,11 +138,9 @@ function submitCustomOrder(event) {
   document.getElementById("project-form").reset();
 }
 
-// WhatsApp Integration Logic
+// WhatsApp Integration
 function sendWhatsAppProject() {
-  // Replace with your active WhatsApp phone number (country code + number, no '+' or spaces)
-  const phoneNumber = "910000000000"; 
-  
+  const phoneNumber = "910000000000"; // Replace with your phone number
   const type = document.getElementById("project-type").value;
   const details = document.getElementById("details").value.trim();
   const budget = document.getElementById("budget").value;
@@ -156,11 +155,10 @@ function sendWhatsAppProject() {
     message += `*Details:* I would like to discuss specifications.`;
   }
 
-  const encodedMessage = encodeURIComponent(message);
-  window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+  window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
 }
 
-// Disclaimer Modal
+// Pentest Disclaimer Modal
 let selectedSecurityItem = "";
 function openDisclaimer(itemName) {
   selectedSecurityItem = itemName;
@@ -181,36 +179,27 @@ function confirmSecurityPurchase() {
   alert(`${selectedSecurityItem} added to cart. Compliance accepted.`);
 }
 
-// --- 4. Admin Auth & Management Logic ---
-function openAdminModal() {
-  document.getElementById("admin-login-modal").classList.add("active");
-}
-
-function closeAdminModal() {
-  document.getElementById("admin-login-modal").classList.remove("active");
-  document.getElementById("admin-user").value = "";
-  document.getElementById("admin-password").value = "";
-}
-
-function loginAdmin() {
+// Dedicated Admin Site Functions (admin.html)
+function loginAdminPage() {
   const inputUser = document.getElementById("admin-user").value;
   const inputPass = document.getElementById("admin-password").value;
 
   if (inputUser === ADMIN_USER && inputPass === ADMIN_PASSWORD) {
-    closeAdminModal();
-    const adminSection = document.getElementById("admin-panel");
-    adminSection.classList.remove("hidden-admin");
-    adminSection.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById("admin-login-screen").style.display = "none";
+    const panel = document.getElementById("admin-panel");
+    panel.classList.remove("hidden-admin");
+    renderAllProducts();
     renderOrders();
-    alert("Admin login successful!");
   } else {
     alert("Incorrect admin credentials.");
   }
 }
 
-function logoutAdmin() {
+function logoutAdminPage() {
+  document.getElementById("admin-login-screen").style.display = "block";
   document.getElementById("admin-panel").classList.add("hidden-admin");
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.getElementById("admin-user").value = "";
+  document.getElementById("admin-password").value = "";
 }
 
 function adminAddNewProduct(event) {
@@ -259,6 +248,7 @@ function deleteProduct(productId) {
 
 function renderOrders() {
   const ordersList = document.getElementById("orders-list");
+  if (!ordersList) return;
   const orders = JSON.parse(localStorage.getItem("custom_orders") || "[]");
 
   if (orders.length === 0) {
