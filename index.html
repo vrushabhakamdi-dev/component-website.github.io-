@@ -8,11 +8,14 @@
 </head>
 <body>
 
+  <!-- Floating Ambient Orbs -->
   <div class="bg-orb orb-1"></div>
   <div class="bg-orb orb-2"></div>
 
+  <!-- Navigation -->
   <nav class="navbar">
-    <div class="logo">TechCraft <span>Hardware</span></div>
+    <!-- Click title to open hidden admin panel -->
+    <div class="logo" style="cursor: pointer;" onclick="openAdminModal()">TechCraft <span>Hardware</span></div>
     <ul class="nav-links">
       <li><a href="#components">Components</a></li>
       <li><a href="#custom-projects">Custom Projects</a></li>
@@ -20,39 +23,22 @@
     </ul>
   </nav>
 
+  <!-- Hero Section -->
   <header class="hero hidden">
     <h1>Next-Gen Robotics & Security Hardware</h1>
     <p>Your one-stop hub for microcontrollers, custom on-demand models, and hardware security tools.</p>
     <a href="#components" class="btn btn-primary pulse-btn">Explore Store</a>
   </header>
 
+  <!-- Section 1: Components -->
   <section id="components" class="section hidden">
     <h2>Robotics & IoT Components</h2>
     <div class="product-grid">
-      <div class="card">
-        <div class="card-glow"></div>
-        <h3>ESP32 Wi-Fi + BT Board</h3>
-        <p>Dual-core microcontroller with built-in Wi-Fi and Bluetooth.</p>
-        <span class="price">$6.50</span>
-        <button class="btn btn-add" onclick="addToCart(this, 'ESP32 Board')">Add to Cart</button>
-      </div>
-      <div class="card">
-        <div class="card-glow"></div>
-        <h3>NRF24L01+ Transceiver</h3>
-        <p>2.4GHz RF wireless transceiver module for long-range communication.</p>
-        <span class="price">$2.20</span>
-        <button class="btn btn-add" onclick="addToCart(this, 'NRF24L01 Module')">Add to Cart</button>
-      </div>
-      <div class="card">
-        <div class="card-glow"></div>
-        <h3>Ultrasonic Sensor HC-SR04</h3>
-        <p>High-precision distance measurement module for autonomous builds.</p>
-        <span class="price">$1.80</span>
-        <button class="btn btn-add" onclick="addToCart(this, 'HC-SR04 Sensor')">Add to Cart</button>
-      </div>
+      <!-- Dynamic products render here via JS -->
     </div>
   </section>
 
+  <!-- Section 2: Custom Projects -->
   <section id="custom-projects" class="section alt-bg hidden">
     <h2>On-Demand Custom Projects</h2>
     <p>Request custom 3D printed chassis, smart IoT automation, or custom PCB prototypes built to your specs.</p>
@@ -81,50 +67,105 @@
         </select>
       </div>
 
-      <button type="submit" class="btn btn-primary shimmer-btn">Submit Project Request</button>
+      <button type="submit" class="btn btn-primary">Submit Project Request</button>
     </form>
   </section>
 
+  <!-- Section 3: Security Gear -->
   <section id="security-gear" class="section hidden">
     <h2>Security & Hardware Pentesting Tools</h2>
     <div class="product-grid">
-      <div class="card security-card">
-        <div class="card-glow"></div>
-        <h3>HackRF One SDR</h3>
-        <p>Software Defined Radio receiver/transmitter covering 1 MHz to 6 GHz.</p>
-        <span class="price">$180.00</span>
-        <button class="btn warning-btn" onclick="openDisclaimer('HackRF One SDR')">Buy Tool</button>
-      </div>
-      <div class="card security-card">
-        <div class="card-glow"></div>
-        <h3>ESP8266 Deauther Board</h3>
-        <p>Open-source Wi-Fi packet research and pentesting board.</p>
-        <span class="price">$15.00</span>
-        <button class="btn warning-btn" onclick="openDisclaimer('ESP8266 Deauther')">Buy Tool</button>
-      </div>
-      <div class="card security-card">
-        <div class="card-glow"></div>
-        <h3>BadUSB / Ducky Drive</h3>
-        <p>Programmable keystroke injection tool for penetration testing.</p>
-        <span class="price">$22.00</span>
-        <button class="btn warning-btn" onclick="openDisclaimer('BadUSB Drive')">Buy Tool</button>
-      </div>
+      <!-- Dynamic security tools render here via JS -->
     </div>
   </section>
 
-  <div id="modal" class="modal">
+  <!-- Admin Login Modal -->
+  <div id="admin-login-modal" class="modal">
     <div class="modal-content">
+      <h3>Admin Access</h3>
+      <p>Enter credentials to manage inventory & orders.</p>
+      <input type="text" id="admin-user" placeholder="Username (default: admin)" class="admin-input">
+      <input type="password" id="admin-password" placeholder="Password (default: password123)" class="admin-input">
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeAdminModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="loginAdmin()">Login</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Security Tools Legal Agreement Modal -->
+  <div id="modal" class="modal">
+    <div class="modal-content border-warning">
       <h3>Authorized Use Agreement</h3>
       <p>By purchasing security/pentesting hardware, you agree that this equipment will be used strictly for **educational purposes, security research, and authorized penetration testing** on networks/devices you own or have explicit written authorization to test.</p>
       <label class="checkbox-container">
-        <input type="checkbox" id="agree-checkbox"> I agree to the compliance terms and local regulations.
+        <input type="checkbox" id="agree-checkbox"> I agree to compliance terms and local regulations.
       </label>
       <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-secondary" onclick="closeDisclaimerModal()">Cancel</button>
         <button class="btn btn-primary" onclick="confirmSecurityPurchase()">Proceed to Checkout</button>
       </div>
     </div>
   </div>
+
+  <!-- Hidden Admin Dashboard Section -->
+  <section id="admin-panel" class="section alt-bg hidden-admin">
+    <div class="admin-header">
+      <h2>🛠️ Store Admin Dashboard</h2>
+      <button class="btn warning-btn" onclick="logoutAdmin()">Logout</button>
+    </div>
+
+    <!-- Add Product Form -->
+    <div class="admin-card">
+      <h3>Add New Product</h3>
+      <form id="add-product-form" onsubmit="adminAddNewProduct(event)">
+        <div class="admin-form-row">
+          <input type="text" id="prod-name" placeholder="Product Title" required>
+          <input type="number" step="0.01" id="prod-price" placeholder="Price ($)" required>
+          <select id="prod-section" required>
+            <option value="components">Robotics & Components</option>
+            <option value="security">Security & Pentest Tools</option>
+          </select>
+          <select id="prod-stock" required>
+            <option value="true">In Stock</option>
+            <option value="false">Out of Stock</option>
+          </select>
+        </div>
+        <input type="url" id="prod-image" placeholder="Image URL (e.g. https://images.unsplash.com/...)" class="admin-input">
+        <textarea id="prod-desc" rows="2" placeholder="Product Details / Description" required></textarea>
+        <button type="submit" class="btn btn-primary">Publish Product</button>
+      </form>
+    </div>
+
+    <!-- Inventory Table -->
+    <div class="admin-card">
+      <h3>Manage Inventory & Stock</h3>
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Category</th>
+              <th>Stock Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-product-rows">
+            <!-- Dynamic Admin Rows -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Orders Section -->
+    <div class="admin-card">
+      <h3>Incoming Custom Project Requests</h3>
+      <div id="orders-list">
+        <p class="empty-text">No custom project orders received yet.</p>
+      </div>
+    </div>
+  </section>
 
   <script src="script.js"></script>
 </body>
