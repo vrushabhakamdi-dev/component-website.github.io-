@@ -8,10 +8,13 @@
 </head>
 <body>
 
+  <!-- Floating Ambient Orbs -->
   <div class="bg-orb orb-1"></div>
   <div class="bg-orb orb-2"></div>
 
+  <!-- Navigation -->
   <nav class="navbar">
+    <!-- Click title to open hidden admin panel -->
     <div class="logo" style="cursor: pointer;" onclick="openAdminModal()">TechCraft <span>Hardware</span></div>
     <ul class="nav-links">
       <li><a href="#components">1. Components</a></li>
@@ -20,21 +23,25 @@
     </ul>
   </nav>
 
+  <!-- Hero Section -->
   <header class="hero hidden">
     <h1>Next-Gen Hardware & Custom Engineering</h1>
     <p>Your one-stop shop for IoT components, custom project prototyping, and penetration testing gear.</p>
     <a href="#components" class="btn btn-primary pulse-btn">Explore Catalog</a>
   </header>
 
+  <!-- Section 1: Components -->
   <section id="components" class="section hidden">
     <div class="section-title">
       <h2>1. Components</h2>
       <p>Microcontrollers, sensors, and wireless transceivers for your hardware builds.</p>
     </div>
     <div class="product-grid">
-      </div>
+      <!-- Dynamic components render here -->
+    </div>
   </section>
 
+  <!-- Section 2: Projects -->
   <section id="custom-projects" class="section alt-bg hidden">
     <div class="section-title">
       <h2>2. Custom Projects</h2>
@@ -68,6 +75,7 @@
       <button type="submit" class="btn btn-primary">Log Request in Dashboard</button>
     </form>
 
+    <!-- WhatsApp Quick Connect Box -->
     <div class="whatsapp-container">
       <p>Prefer instant messaging? Discuss your project directly with our engineering team:</p>
       <button type="button" class="btn whatsapp-btn" onclick="sendWhatsAppProject()">
@@ -79,15 +87,18 @@
     </div>
   </section>
 
+  <!-- Section 3: Pentest Gears -->
   <section id="security-gear" class="section hidden">
     <div class="section-title">
       <h2>3. Pentest Gears</h2>
       <p>Authorized hardware security, software-defined radio, and network pentesting gear.</p>
     </div>
     <div class="product-grid">
-      </div>
+      <!-- Dynamic security tools render here -->
+    </div>
   </section>
 
+  <!-- Admin Login Modal -->
   <div id="admin-login-modal" class="modal">
     <div class="modal-content">
       <h3>Admin Access</h3>
@@ -101,6 +112,7 @@
     </div>
   </div>
 
+  <!-- Security Tools Legal Agreement Modal -->
   <div id="modal" class="modal">
     <div class="modal-content border-warning">
       <h3>Authorized Use Agreement</h3>
@@ -115,12 +127,14 @@
     </div>
   </div>
 
+  <!-- Admin Dashboard Section -->
   <section id="admin-panel" class="section alt-bg hidden-admin">
     <div class="admin-header">
       <h2>🛠️ Store Admin Dashboard</h2>
       <button class="btn warning-btn" onclick="logoutAdmin()">Logout</button>
     </div>
 
+    <!-- Add Product Form -->
     <div class="admin-card">
       <h3>Add New Product</h3>
       <form id="add-product-form" onsubmit="adminAddNewProduct(event)">
@@ -142,6 +156,7 @@
       </form>
     </div>
 
+    <!-- Inventory Table -->
     <div class="admin-card">
       <h3>Manage Inventory & Stock</h3>
       <div class="table-container">
@@ -160,6 +175,7 @@
       </div>
     </div>
 
+    <!-- Orders Section -->
     <div class="admin-card">
       <h3>Incoming Custom Project Requests</h3>
       <div id="orders-list">
