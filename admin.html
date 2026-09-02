@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechCraft | Admin Management Suite</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+
+  <nav class="navbar">
+    <div class="logo">TechCraft <span>Admin Console</span></div>
+    <ul class="nav-links">
+      <li><a href="index.html">← Back to Main Website</a></li>
+    </ul>
+  </nav>
+
+  <section id="admin-login-screen" class="section alt-bg">
+    <h2>Admin Authentication</h2>
+    <p>Sign in to manage inventory, product pricing, and incoming custom requests.</p>
+    <div style="max-width: 400px; margin-top: 1.5rem;">
+      <input type="text" id="admin-user" placeholder="Username (default: admin)" class="admin-input">
+      <input type="password" id="admin-password" placeholder="Password (default: password123)" class="admin-input">
+      <button class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;" onclick="loginAdminPage()">Login to Console</button>
+    </div>
+  </section>
+
+  <section id="admin-panel" class="section alt-bg hidden-admin">
+    <div class="admin-header">
+      <h2>🛠️ Store Admin Dashboard</h2>
+      <button class="btn warning-btn" onclick="logoutAdminPage()">Sign Out</button>
+    </div>
+
+    <div class="admin-card">
+      <h3>Add New Product</h3>
+      <form id="add-product-form" onsubmit="adminAddNewProduct(event)">
+        <div class="admin-form-row">
+          <input type="text" id="prod-name" placeholder="Product Title" required>
+          <input type="number" step="0.01" id="prod-price" placeholder="Price ($)" required>
+          <select id="prod-section" required>
+            <option value="components">Components</option>
+            <option value="security">Pentest Gears</option>
+          </select>
+          <select id="prod-stock" required>
+            <option value="true">In Stock</option>
+            <option value="false">Out of Stock</option>
+          </select>
+        </div>
+        <input type="url" id="prod-image" placeholder="Image URL (e.g. https://images.unsplash.com/...)" class="admin-input">
+        <textarea id="prod-desc" rows="2" placeholder="Product Details / Description" required></textarea>
+        <button type="submit" class="btn btn-primary">Publish Product</button>
+      </form>
+    </div>
+
+    <div class="admin-card">
+      <h3>Manage Inventory & Stock</h3>
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Category</th>
+              <th>Stock Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-product-rows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <h3>Incoming Custom Project Requests</h3>
+      <div id="orders-list">
+        <p class="empty-text">No custom project orders received yet.</p>
+      </div>
+    </div>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
