@@ -137,6 +137,29 @@ function submitCustomOrder(event) {
   document.getElementById("project-form").reset();
 }
 
+// WhatsApp Integration Logic
+function sendWhatsAppProject() {
+  // Replace with your active WhatsApp phone number (country code + number, no '+' or spaces)
+  const phoneNumber = "910000000000"; 
+  
+  const type = document.getElementById("project-type").value;
+  const details = document.getElementById("details").value.trim();
+  const budget = document.getElementById("budget").value;
+
+  let message = `Hello TechCraft Team! I would like to inquire about a project:\n\n` +
+                `*Project Type:* ${type}\n` +
+                `*Budget Range:* ${budget}\n`;
+
+  if (details) {
+    message += `*Details:* ${details}`;
+  } else {
+    message += `*Details:* I would like to discuss specifications.`;
+  }
+
+  const encodedMessage = encodeURIComponent(message);
+  window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+}
+
 // Disclaimer Modal
 let selectedSecurityItem = "";
 function openDisclaimer(itemName) {
