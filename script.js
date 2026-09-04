@@ -11,7 +11,7 @@ const defaultProducts = [
   { id: 5, name: "ESP8266 Deauther Board", price: "15.00", desc: "Open-source Wi-Fi packet research and pentesting board.", section: "security", inStock: true, image: DEFAULT_IMG }
 ];
 
-// 1. Scroll Reveal Observer with Stagger Support
+// 1. Scroll Reveal Observer
 function initScrollObserver() {
   const elements = document.querySelectorAll('.hidden');
   if (elements.length === 0) return;
@@ -33,6 +33,9 @@ function init3DTiltCards() {
 
   cards.forEach(card => {
     card.addEventListener('mousemove', (e) => {
+      // Prevent tilt interference when typing in inputs or clicking buttons
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
@@ -40,13 +43,10 @@ function init3DTiltCards() {
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
 
-      // Calculate tilt angles (max 12 degrees)
       const rotateX = ((y - centerY) / centerY) * -12;
       const rotateY = ((x - centerX) / centerX) * 12;
 
       card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-
-      // Pass glow coordinate relative to card
       card.style.setProperty('--glow-x', `${x}px`);
       card.style.setProperty('--glow-y', `${y}px`);
     });
@@ -57,7 +57,7 @@ function init3DTiltCards() {
   });
 }
 
-// LocalStorage Helper
+// LocalStorage Helpers
 function getStoredProducts() {
   const stored = localStorage.getItem("store_products");
   if (!stored) {
@@ -68,6 +68,47 @@ function getStoredProducts() {
     return JSON.parse(stored);
   } catch (e) {
     return defaultProducts;
+  }
+}
+
+function saveProductsToStorage(products) {
+  localStorage.setItem("store_products", JSON.stringify(products));
+}
+
+// Inline Price Edit Toggle Functions
+function togglePriceEdit(id) {
+  const displayContainer = document.getElementById(`price-display-${id}`);
+  const editContainer = document.getElementById(`price-edit-${id}`);
+  if (displayContainer && editContainer) {
+    displayContainer.style.display = "none";
+    editContainer.style.display = "flex";
+  }
+}
+
+function cancelPriceEdit(id) {
+  const displayContainer = document.getElementById(`price-display-${id}`);
+  const editContainer = document.getElementById(`price-edit-${id}`);
+  if (displayContainer && editContainer) {
+    displayContainer.style.display = "flex";
+    editContainer.style.display = "none";
+  }
+}
+
+function saveCardPrice(id) {
+  const inputEl = document.getElementById(`card-price-input-${id}`);
+  const newPrice = parseFloat(inputEl.value);
+
+  if (isNaN(newPrice) || newPrice < 0) {
+    alert("Please enter a valid price.");
+    return;
+  }
+
+  const products = getStoredProducts();
+  const product = products.find(p => p.id === id);
+  if (product) {
+    product.price = newPrice.toFixed(2);
+    saveProductsToStorage(products);
+    renderAllProducts();
   }
 }
 
@@ -95,7 +136,7 @@ function renderAllProducts() {
           : `<button class="btn btn-primary" onclick="addToCart(this, '${product.name}')">Add to Cart</button>`)
       : `<button class="btn btn-disabled" disabled>Unavailable</button>`;
 
-    // Front-end Card Template with hidden scroll class & staggered animation delay
+    // Front-end Card Template with Inline Price Editor
     const cardHTML = `
       <div class="card hidden ${isSecurity ? 'security-card' : ''}" style="transition-delay: ${idx * 0.1}s;">
         <div class="card-img-wrapper">
@@ -106,7 +147,19 @@ function renderAllProducts() {
           ${stockBadge}
         </div>
         <p>${product.desc}</p>
-        <span class="price">$${parseFloat(product.price).toFixed(2)}</span>
+        
+        <div class="price-row">
+          <div id="price-display-${product.id}" class="price-edit-box" style="display: flex;">
+            <span class="price">$${parseFloat(product.price).toFixed(2)}</span>
+            <button class="btn-icon" onclick="togglePriceEdit(${product.id})" title="Edit Price">✏️</button>
+          </div>
+          <div id="price-edit-${product.id}" class="price-edit-box" style="display: none;">
+            $<input type="number" step="0.01" value="${parseFloat(product.price).toFixed(2)}" id="card-price-input-${product.id}" class="price-input">
+            <button class="btn-sm btn-primary" onclick="saveCardPrice(${product.id})">Save</button>
+            <button class="btn-sm btn-secondary" onclick="cancelPriceEdit(${product.id})">✕</button>
+          </div>
+        </div>
+
         ${actionBtn}
       </div>
     `;
@@ -147,7 +200,6 @@ function renderAllProducts() {
     }
   });
 
-  // Re-initialize tilt event listeners & observer for newly rendered DOM cards
   init3DTiltCards();
   initScrollObserver();
 }
