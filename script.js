@@ -1,4 +1,4 @@
-// Default Configuration & Inventory
+// Admin Configuration Credentials
 const ADMIN_USER = "admin";
 const ADMIN_PASSWORD = "password123"; 
 const DEFAULT_IMG = "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&auto=format&fit=crop&q=60";
@@ -11,7 +11,7 @@ const defaultProducts = [
   { id: 5, name: "ESP8266 Deauther Board", price: "15.00", desc: "Open-source Wi-Fi packet research and pentesting board.", section: "security", inStock: true, image: DEFAULT_IMG }
 ];
 
-// Intersection Observer for Scroll Animations
+// Scroll Animations
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) entry.target.classList.add('show');
@@ -54,7 +54,7 @@ function renderAllProducts() {
           : `<button class="btn btn-add" onclick="addToCart(this, '${product.name}')">Add to Cart</button>`)
       : `<button class="btn btn-disabled" disabled>Unavailable</button>`;
 
-    // Store Product Card
+    // Front-end Card Template
     const cardHTML = `
       <div class="card ${isSecurity ? 'security-card' : ''}">
         <div class="card-img-wrapper">
@@ -76,7 +76,7 @@ function renderAllProducts() {
       compGrid.innerHTML += cardHTML;
     }
 
-    // Admin Table Row
+    // Admin Panel Table Row
     if (adminTableBody) {
       adminTableBody.innerHTML += `
         <tr>
@@ -86,7 +86,12 @@ function renderAllProducts() {
               <strong>${product.name}</strong>
             </div>
           </td>
-          <td>$${parseFloat(product.price).toFixed(2)}</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+              $<input type="number" step="0.01" value="${parseFloat(product.price).toFixed(2)}" id="price-input-${product.id}" class="price-edit-input">
+              <button class="btn-sm btn-stock-on" onclick="updateProductPrice(${product.id})">Save</button>
+            </div>
+          </td>
           <td><span class="tag">${product.section}</span></td>
           <td>
             <button class="btn-sm ${product.inStock ? 'btn-stock-on' : 'btn-stock-off'}" onclick="toggleStock(${product.id})">
@@ -102,7 +107,81 @@ function renderAllProducts() {
   });
 }
 
-// User Cart & Project Submissions
+// Helper Function: Read File as Base64 Data URL
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+    reader.readAsDataURL(file);
+  });
+}
+
+// Updated Add Product Handler supporting local file picker selection
+async function adminAddNewProduct(event) {
+  event.preventDefault();
+
+  const name = document.getElementById("prod-name").value;
+  const price = document.getElementById("prod-price").value;
+  const section = document.getElementById("prod-section").value;
+  const desc = document.getElementById("prod-desc").value;
+  const inStock = document.getElementById("prod-stock").value === "true";
+  const fileInput = document.getElementById("prod-image-file");
+
+  let imageUrl = DEFAULT_IMG;
+
+  // Convert uploaded image file to Base64 string if selected
+  if (fileInput && fileInput.files.length > 0) {
+    try {
+      imageUrl = await readFileAsDataURL(fileInput.files[0]);
+    } catch (error) {
+      console.error("Error reading file:", error);
+      alert("Failed to read image file. Default placeholder image will be used.");
+    }
+  }
+
+  const products = getStoredProducts();
+  products.push({
+    id: Date.now(),
+    name: name,
+    price: parseFloat(price).toFixed(2),
+    desc: desc,
+    section: section,
+    image: imageUrl,
+    inStock: inStock
+  });
+
+  localStorage.setItem("store_products", JSON.stringify(products));
+  renderAllProducts();
+  document.getElementById("add-product-form").reset();
+  alert(`Product "${name}" published successfully!`);
+}
+
+// Inline Price Modifier Function
+function updateProductPrice(productId) {
+  const priceInput = document.getElementById(`price-input-${productId}`);
+  if (!priceInput) return;
+
+  const newPrice = parseFloat(priceInput.value);
+  if (isNaN(newPrice) || newPrice < 0) {
+    alert("Please enter a valid positive price.");
+    return;
+  }
+
+  const products = getStoredProducts();
+  const updatedProducts = products.map(p => {
+    if (p.id === productId) {
+      p.price = newPrice.toFixed(2);
+    }
+    return p;
+  });
+
+  localStorage.setItem("store_products", JSON.stringify(updatedProducts));
+  renderAllProducts();
+  alert("Price updated successfully!");
+}
+
+// Shopping Cart Simulation
 function addToCart(buttonElement, itemName) {
   const originalText = buttonElement.innerText;
   buttonElement.innerText = "✓ Added!";
@@ -138,9 +217,9 @@ function submitCustomOrder(event) {
   document.getElementById("project-form").reset();
 }
 
-// WhatsApp Integration
+// WhatsApp Routing
 function sendWhatsAppProject() {
-  const phoneNumber = "910000000000"; // Replace with your phone number
+  const phoneNumber = "910000000000"; // Replace with your target phone number
   const type = document.getElementById("project-type").value;
   const details = document.getElementById("details").value.trim();
   const budget = document.getElementById("budget").value;
@@ -158,7 +237,7 @@ function sendWhatsAppProject() {
   window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
 }
 
-// Pentest Disclaimer Modal
+// Pentest Disclaimer Modal Logic
 let selectedSecurityItem = "";
 function openDisclaimer(itemName) {
   selectedSecurityItem = itemName;
@@ -179,19 +258,24 @@ function confirmSecurityPurchase() {
   alert(`${selectedSecurityItem} added to cart. Compliance accepted.`);
 }
 
-// Dedicated Admin Site Functions (admin.html)
+// Admin Authentication Handler
 function loginAdminPage() {
-  const inputUser = document.getElementById("admin-user").value;
-  const inputPass = document.getElementById("admin-password").value;
+  const userInput = document.getElementById("admin-user");
+  const passInput = document.getElementById("admin-password");
 
-  if (inputUser === ADMIN_USER && inputPass === ADMIN_PASSWORD) {
+  if (!userInput || !passInput) return;
+
+  const inputUser = userInput.value.trim().toLowerCase();
+  const inputPass = passInput.value.trim().toLowerCase();
+
+  if (inputUser === ADMIN_USER.toLowerCase() && inputPass === ADMIN_PASSWORD.toLowerCase()) {
     document.getElementById("admin-login-screen").style.display = "none";
     const panel = document.getElementById("admin-panel");
     panel.classList.remove("hidden-admin");
     renderAllProducts();
     renderOrders();
   } else {
-    alert("Incorrect admin credentials.");
+    alert("Incorrect admin credentials. Use Username: admin | Password: password123");
   }
 }
 
@@ -200,32 +284,6 @@ function logoutAdminPage() {
   document.getElementById("admin-panel").classList.add("hidden-admin");
   document.getElementById("admin-user").value = "";
   document.getElementById("admin-password").value = "";
-}
-
-function adminAddNewProduct(event) {
-  event.preventDefault();
-  const name = document.getElementById("prod-name").value;
-  const price = document.getElementById("prod-price").value;
-  const section = document.getElementById("prod-section").value;
-  const image = document.getElementById("prod-image").value;
-  const desc = document.getElementById("prod-desc").value;
-  const inStock = document.getElementById("prod-stock").value === "true";
-
-  const products = getStoredProducts();
-  products.push({
-    id: Date.now(),
-    name: name,
-    price: price,
-    desc: desc,
-    section: section,
-    image: image,
-    inStock: inStock
-  });
-
-  localStorage.setItem("store_products", JSON.stringify(products));
-  renderAllProducts();
-  document.getElementById("add-product-form").reset();
-  alert(`Product "${name}" published successfully!`);
 }
 
 function toggleStock(productId) {
@@ -267,4 +325,10 @@ function renderOrders() {
   `).join("");
 }
 
-document.addEventListener("DOMContentLoaded", renderAllProducts);
+// Initialize Application
+document.addEventListener("DOMContentLoaded", () => {
+  renderAllProducts();
+  if (document.getElementById("orders-list")) {
+    renderOrders();
+  }
+});
