@@ -28,6 +28,17 @@ body {
   position: relative;
 }
 
+/* Fixed Background Particle Canvas */
+#particle-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  pointer-events: none;
+}
+
 /* Ambient Orbs */
 .bg-orb {
   position: fixed;
