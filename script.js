@@ -12,13 +12,18 @@ const defaultProducts = [
 ];
 
 // Scroll Animations
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) entry.target.classList.add('show');
-  });
-}, { threshold: 0.15 });
+function initScrollObserver() {
+  const elements = document.querySelectorAll('.hidden');
+  if (elements.length === 0) return;
 
-document.querySelectorAll('.hidden').forEach((el) => observer.observe(el));
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('show');
+    });
+  }, { threshold: 0.15 });
+
+  elements.forEach((el) => observer.observe(el));
+}
 
 // LocalStorage Helper
 function getStoredProducts() {
@@ -27,7 +32,11 @@ function getStoredProducts() {
     localStorage.setItem("store_products", JSON.stringify(defaultProducts));
     return defaultProducts;
   }
-  return JSON.parse(stored);
+  try {
+    return JSON.parse(stored);
+  } catch (e) {
+    return defaultProducts;
+  }
 }
 
 // Render Products & Admin Data
@@ -51,7 +60,7 @@ function renderAllProducts() {
     const actionBtn = product.inStock
       ? (isSecurity 
           ? `<button class="btn warning-btn" onclick="openDisclaimer('${product.name}')">Buy Tool</button>`
-          : `<button class="btn btn-add" onclick="addToCart(this, '${product.name}')">Add to Cart</button>`)
+          : `<button class="btn btn-primary" onclick="addToCart(this, '${product.name}')">Add to Cart</button>`)
       : `<button class="btn btn-disabled" disabled>Unavailable</button>`;
 
     // Front-end Card Template
@@ -107,79 +116,6 @@ function renderAllProducts() {
   });
 }
 
-// Helper Function: Read File as Base64 Data URL
-function readFileAsDataURL(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-    reader.readAsDataURL(file);
-  });
-}
-
-// Add Product Handler supporting local file picker selection
-async function adminAddNewProduct(event) {
-  event.preventDefault();
-
-  const name = document.getElementById("prod-name").value;
-  const price = document.getElementById("prod-price").value;
-  const section = document.getElementById("prod-section").value;
-  const desc = document.getElementById("prod-desc").value;
-  const inStock = document.getElementById("prod-stock").value === "true";
-  const fileInput = document.getElementById("prod-image-file");
-
-  let imageUrl = DEFAULT_IMG;
-
-  if (fileInput && fileInput.files.length > 0) {
-    try {
-      imageUrl = await readFileAsDataURL(fileInput.files[0]);
-    } catch (error) {
-      console.error("Error reading file:", error);
-      alert("Failed to read image file. Default placeholder image will be used.");
-    }
-  }
-
-  const products = getStoredProducts();
-  products.push({
-    id: Date.now(),
-    name: name,
-    price: parseFloat(price).toFixed(2),
-    desc: desc,
-    section: section,
-    image: imageUrl,
-    inStock: inStock
-  });
-
-  localStorage.setItem("store_products", JSON.stringify(products));
-  renderAllProducts();
-  document.getElementById("add-product-form").reset();
-  alert(`Product "${name}" published successfully!`);
-}
-
-// Inline Price Modifier Function
-function updateProductPrice(productId) {
-  const priceInput = document.getElementById(`price-input-${productId}`);
-  if (!priceInput) return;
-
-  const newPrice = parseFloat(priceInput.value);
-  if (isNaN(newPrice) || newPrice < 0) {
-    alert("Please enter a valid positive price.");
-    return;
-  }
-
-  const products = getStoredProducts();
-  const updatedProducts = products.map(p => {
-    if (p.id === productId) {
-      p.price = newPrice.toFixed(2);
-    }
-    return p;
-  });
-
-  localStorage.setItem("store_products", JSON.stringify(updatedProducts));
-  renderAllProducts();
-  alert("Price updated successfully!");
-}
-
 // Shopping Cart Simulation
 function addToCart(buttonElement, itemName) {
   const originalText = buttonElement.innerText;
@@ -189,8 +125,8 @@ function addToCart(buttonElement, itemName) {
   
   setTimeout(() => {
     buttonElement.innerText = originalText;
-    buttonElement.style.backgroundColor = "transparent";
-    buttonElement.style.color = "#64ffda";
+    buttonElement.style.backgroundColor = "";
+    buttonElement.style.color = "";
   }, 1500);
 }
 
@@ -257,73 +193,6 @@ function confirmSecurityPurchase() {
   alert(`${selectedSecurityItem} added to cart. Compliance accepted.`);
 }
 
-// Admin Authentication Handler
-function loginAdminPage() {
-  const userInput = document.getElementById("admin-user");
-  const passInput = document.getElementById("admin-password");
-
-  if (!userInput || !passInput) return;
-
-  const inputUser = userInput.value.trim().toLowerCase();
-  const inputPass = passInput.value.trim().toLowerCase();
-
-  if (inputUser === ADMIN_USER.toLowerCase() && inputPass === ADMIN_PASSWORD.toLowerCase()) {
-    document.getElementById("admin-login-screen").style.display = "none";
-    const panel = document.getElementById("admin-panel");
-    panel.classList.remove("hidden-admin");
-    renderAllProducts();
-    renderOrders();
-  } else {
-    alert("Incorrect admin credentials. Use Username: admin | Password: password123");
-  }
-}
-
-function logoutAdminPage() {
-  document.getElementById("admin-login-screen").style.display = "block";
-  document.getElementById("admin-panel").classList.add("hidden-admin");
-  document.getElementById("admin-user").value = "";
-  document.getElementById("admin-password").value = "";
-}
-
-function toggleStock(productId) {
-  const products = getStoredProducts();
-  const updated = products.map(p => {
-    if (p.id === productId) p.inStock = !p.inStock;
-    return p;
-  });
-  localStorage.setItem("store_products", JSON.stringify(updated));
-  renderAllProducts();
-}
-
-function deleteProduct(productId) {
-  if (!confirm("Are you sure you want to delete this product?")) return;
-  let products = getStoredProducts();
-  products = products.filter(p => p.id !== productId);
-  localStorage.setItem("store_products", JSON.stringify(products));
-  renderAllProducts();
-}
-
-function renderOrders() {
-  const ordersList = document.getElementById("orders-list");
-  if (!ordersList) return;
-  const orders = JSON.parse(localStorage.getItem("custom_orders") || "[]");
-
-  if (orders.length === 0) {
-    ordersList.innerHTML = '<p class="empty-text">No custom project orders received yet.</p>';
-    return;
-  }
-
-  ordersList.innerHTML = orders.map(order => `
-    <div class="order-item">
-      <header>
-        <span>${order.type}</span>
-        <span>Budget: ${order.budget} | Date: ${order.date}</span>
-      </header>
-      <p><strong>Requirements:</strong> ${order.details}</p>
-    </div>
-  `).join("");
-}
-
 // Interactive Particle Network Background Engine
 function initParticleCanvas() {
   const canvas = document.getElementById("particle-canvas");
@@ -341,11 +210,11 @@ function initParticleCanvas() {
 
   window.addEventListener("resize", resizeCanvas);
   window.addEventListener("mousemove", (e) => {
-    mouse.x = e.x;
-    mouse.y = e.y;
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
   });
 
-  window.addEventListener("mouseout", () => {
+  window.addEventListener("mouseleave", () => {
     mouse.x = null;
     mouse.y = null;
   });
@@ -370,14 +239,14 @@ function initParticleCanvas() {
     draw() {
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(100, 255, 218, 0.6)";
+      ctx.fillStyle = "rgba(100, 255, 218, 0.8)";
       ctx.fill();
     }
   }
 
   function createParticles() {
     particles = [];
-    const particleCount = Math.floor((canvas.width * canvas.height) / 12000);
+    const particleCount = Math.floor((canvas.width * canvas.height) / 10000);
     for (let i = 0; i < particleCount; i++) {
       particles.push(new Particle());
     }
@@ -392,7 +261,7 @@ function initParticleCanvas() {
 
         if (dist < 120) {
           let opacity = 1 - dist / 120;
-          ctx.strokeStyle = `rgba(100, 255, 218, ${opacity * 0.25})`;
+          ctx.strokeStyle = `rgba(100, 255, 218, ${opacity * 0.35})`;
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(particles[a].x, particles[a].y);
@@ -401,14 +270,14 @@ function initParticleCanvas() {
         }
       }
 
-      if (mouse.x && mouse.y) {
+      if (mouse.x !== null && mouse.y !== null) {
         let mdx = particles[a].x - mouse.x;
         let mdy = particles[a].y - mouse.y;
         let mdist = Math.sqrt(mdx * mdx + mdy * mdy);
 
         if (mdist < mouse.radius) {
           let opacity = 1 - mdist / mouse.radius;
-          ctx.strokeStyle = `rgba(100, 255, 218, ${opacity * 0.5})`;
+          ctx.strokeStyle = `rgba(100, 255, 218, ${opacity * 0.6})`;
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(particles[a].x, particles[a].y);
@@ -435,9 +304,7 @@ function initParticleCanvas() {
 
 // Initialize Application
 document.addEventListener("DOMContentLoaded", () => {
+  initScrollObserver();
   renderAllProducts();
-  if (document.getElementById("orders-list")) {
-    renderOrders();
-  }
   initParticleCanvas();
 });
