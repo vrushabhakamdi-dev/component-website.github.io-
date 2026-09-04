@@ -69,6 +69,12 @@ body {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--primary);
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+}
+
+.logo:hover {
+  opacity: 0.85;
 }
 
 .logo span {
@@ -90,13 +96,6 @@ body {
 
 .nav-links a:hover {
   color: var(--primary);
-}
-
-.admin-link {
-  color: var(--primary) !important;
-  border: 1px solid var(--primary);
-  padding: 0.3rem 0.8rem;
-  border-radius: 4px;
 }
 
 /* Sections */
@@ -322,7 +321,7 @@ input:focus, select:focus, textarea:focus {
   gap: 1rem;
 }
 
-/* Admin Specific */
+/* Admin Panel Specific */
 .hidden-admin {
   display: none;
 }
