@@ -217,44 +217,10 @@ function addToCart(buttonElement, itemName) {
   }, 1500);
 }
 
-function submitCustomOrder(event) {
-  event.preventDefault();
-  const type = document.getElementById("project-type").value;
-  const details = document.getElementById("details").value;
-  const budget = document.getElementById("budget").value;
-
-  const newOrder = {
-    id: Date.now(),
-    type: type,
-    details: details,
-    budget: budget,
-    date: new Date().toLocaleDateString()
-  };
-
-  const orders = JSON.parse(localStorage.getItem("custom_orders") || "[]");
-  orders.push(newOrder);
-  localStorage.setItem("custom_orders", JSON.stringify(orders));
-
-  alert(`Thank you! Your custom ${type} request has been logged.`);
-  document.getElementById("project-form").reset();
-}
-
-// WhatsApp Routing (Direct Phone Call Removed)
+// Direct WhatsApp Routing
 function sendWhatsAppProject() {
   const phoneNumber = "918380041254";
-  const type = document.getElementById("project-type").value;
-  const details = document.getElementById("details").value.trim();
-  const budget = document.getElementById("budget").value;
-
-  let message = `Hello TechDevs Team! I would like to inquire about a project:\n\n` +
-                `*Project Type:* ${type}\n` +
-                `*Budget Range:* ${budget}\n`;
-
-  if (details) {
-    message += `*Details:* ${details}`;
-  } else {
-    message += `*Details:* I would like to discuss specifications.`;
-  }
+  const message = "hi techdevs team i want a customized model";
 
   window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
 }
