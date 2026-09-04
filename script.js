@@ -33,7 +33,6 @@ function init3DTiltCards() {
 
   cards.forEach(card => {
     card.addEventListener('mousemove', (e) => {
-      // Prevent tilt interference when typing in inputs or clicking buttons
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
 
       const rect = card.getBoundingClientRect();
@@ -240,9 +239,9 @@ function submitCustomOrder(event) {
   document.getElementById("project-form").reset();
 }
 
-// WhatsApp Routing
+// WhatsApp Routing (Direct Phone Call Removed)
 function sendWhatsAppProject() {
-  const phoneNumber = "910000000000";
+  const phoneNumber = "918380041254";
   const type = document.getElementById("project-type").value;
   const details = document.getElementById("details").value.trim();
   const budget = document.getElementById("budget").value;
