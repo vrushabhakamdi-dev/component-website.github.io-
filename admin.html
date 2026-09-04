@@ -8,9 +8,11 @@
 </head>
 <body>
 
+  <!-- Ambient Background Orbs -->
   <div class="bg-orb orb-1"></div>
   <div class="bg-orb orb-2"></div>
 
+  <!-- Navigation -->
   <nav class="navbar">
     <div class="logo">TechCraft <span>Admin Console</span></div>
     <ul class="nav-links">
@@ -18,6 +20,7 @@
     </ul>
   </nav>
 
+  <!-- Login Gate Screen -->
   <section id="admin-login-screen" class="section alt-bg">
     <h2>Admin Authentication</h2>
     <p>Sign in to manage inventory, update pricing, and view incoming project orders.</p>
@@ -28,12 +31,14 @@
     </div>
   </section>
 
+  <!-- Admin Dashboard Site -->
   <section id="admin-panel" class="section alt-bg hidden-admin">
     <div class="admin-header">
       <h2>🛠️ Store Admin Dashboard</h2>
       <button class="btn warning-btn" onclick="logoutAdminPage()">Sign Out</button>
     </div>
 
+    <!-- Add New Product Form -->
     <div class="admin-card">
       <h3>Add New Product</h3>
       <form id="add-product-form" onsubmit="adminAddNewProduct(event)">
@@ -49,12 +54,19 @@
             <option value="false">Out of Stock</option>
           </select>
         </div>
-        <input type="url" id="prod-image" placeholder="Image URL (e.g. https://images.unsplash.com/...)" class="admin-input">
+        
+        <!-- File Picker Input for Local File Explorer Upload -->
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label for="prod-image-file" style="color: var(--text-muted); font-size: 0.9rem;">Upload Product Image from Device:</label>
+          <input type="file" id="prod-image-file" accept="image/*" class="admin-input" style="padding: 0.5rem; margin-bottom: 0;">
+        </div>
+
         <textarea id="prod-desc" rows="2" placeholder="Product Details / Description" required></textarea>
         <button type="submit" class="btn btn-primary">Publish Product</button>
       </form>
     </div>
 
+    <!-- Inventory & Price Editing Table -->
     <div class="admin-card">
       <h3>Manage Inventory & Edit Prices</h3>
       <div class="table-container">
@@ -73,6 +85,7 @@
       </div>
     </div>
 
+    <!-- Incoming Custom Orders Section -->
     <div class="admin-card">
       <h3>Incoming Custom Project Requests</h3>
       <div id="orders-list">
