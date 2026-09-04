@@ -224,7 +224,7 @@ function sendWhatsAppProject() {
   const details = document.getElementById("details").value.trim();
   const budget = document.getElementById("budget").value;
 
-  let message = `Hello TechCraft Team! I would like to inquire about a project:\n\n` +
+  let message = `Hello TechDevs Team! I would like to inquire about a project:\n\n` +
                 `*Project Type:* ${type}\n` +
                 `*Budget Range:* ${budget}\n`;
 
