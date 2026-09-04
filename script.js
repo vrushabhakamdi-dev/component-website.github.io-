@@ -117,7 +117,7 @@ function readFileAsDataURL(file) {
   });
 }
 
-// Updated Add Product Handler supporting local file picker selection
+// Add Product Handler supporting local file picker selection
 async function adminAddNewProduct(event) {
   event.preventDefault();
 
@@ -130,7 +130,6 @@ async function adminAddNewProduct(event) {
 
   let imageUrl = DEFAULT_IMG;
 
-  // Convert uploaded image file to Base64 string if selected
   if (fileInput && fileInput.files.length > 0) {
     try {
       imageUrl = await readFileAsDataURL(fileInput.files[0]);
@@ -219,7 +218,7 @@ function submitCustomOrder(event) {
 
 // WhatsApp Routing
 function sendWhatsAppProject() {
-  const phoneNumber = "910000000000"; // Replace with your target phone number
+  const phoneNumber = "910000000000";
   const type = document.getElementById("project-type").value;
   const details = document.getElementById("details").value.trim();
   const budget = document.getElementById("budget").value;
