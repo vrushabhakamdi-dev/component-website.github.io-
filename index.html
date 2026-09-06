@@ -3,65 +3,121 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TechDevs | Hardware, IoT & Security Gears</title>
+  <title>TechDevs | Electronics, Hardware & Security Gear</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-  <canvas id="particle-canvas"></canvas>
+  <header class="fk-header">
+    <div class="header-container">
+      <div class="logo-group" onclick="handleLogoClick()" style="cursor: pointer;">
+        <span class="logo-text">TechDevs</span>
+        <span class="logo-subtext">Plus <i class="fa-solid fa-bolt"></i></span>
+      </div>
 
-  <div class="bg-orb orb-1"></div>
-  <div class="bg-orb orb-2"></div>
+      <div class="search-bar">
+        <input type="text" id="fk-search-input" placeholder="Search for microcontrollers, pentest gear, sensors..." onkeyup="filterProducts()">
+        <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
 
-  <nav class="navbar">
-    <a href="admin.html" style="text-decoration: none;">
-      <div class="logo">TechDevs <span>Hub</span></div>
-    </a>
-    <ul class="nav-links">
-      <li><a href="#hero">Home</a></li>
-      <li><a href="#components">Components</a></li>
-      <li><a href="#security-gear">Pentest Gear</a></li>
-      <li><a href="#custom-projects">Custom Builds</a></li>
-    </ul>
-  </nav>
-
-  <header id="hero" class="hero section">
-    <div class="hero-content hidden">
-      <span class="badge">Hardware & Security Store</span>
-      <h1>Engineered for Innovators & Security Researchers</h1>
-      <p>Source high-grade microcontrollers, IoT transceivers, and specialized wireless security auditing gear.</p>
-      <div class="hero-buttons">
-        <a href="#components" class="btn btn-primary">Browse Store</a>
-        <a href="#custom-projects" class="btn btn-secondary">Request Custom Build</a>
+      <div class="header-actions">
+        <a href="#custom-projects" class="header-link"><i class="fa-solid fa-microchip"></i> Custom Builds</a>
+        <div class="cart-btn" onclick="toggleCartDrawer()">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span>Cart</span>
+          <span id="cart-count-badge" class="badge">0</span>
+        </div>
       </div>
     </div>
   </header>
 
-  <section id="components" class="section">
-    <div class="section-header hidden">
-      <h2>🔌 Hardware & IoT Components</h2>
-      <p>Precision microcontrollers, sensors, and transceivers for smart projects.</p>
-    </div>
-    <div class="product-grid"></div>
-  </section>
-
-  <section id="security-gear" class="section alt-bg">
-    <div class="section-header hidden">
-      <h2>🛡️ Cybersecurity & Pentest Gear</h2>
-      <p>Authorized hardware tools for wireless auditing, packet analysis, and RF testing.</p>
-    </div>
-    <div class="product-grid"></div>
-  </section>
-
-  <section id="custom-projects" class="section">
-    <div class="section-header hidden">
-      <h2>🛠️ Custom Hardware & Web Solutions</h2>
-      <p>Need a custom IoT system, custom firmware, or full-stack platform? Get in touch with us directly on WhatsApp.</p>
-      <div style="margin-top: 2rem;">
-        <button type="button" class="btn btn-whatsapp" onclick="sendWhatsAppProject()">Order via WhatsApp</button>
+  <nav class="cat-ribbon">
+    <div class="cat-ribbon-container">
+      <div class="cat-item" onclick="filterCategory('all')">
+        <i class="fa-solid fa-border-all"></i>
+        <span>All Products</span>
+      </div>
+      <div class="cat-item" onclick="filterCategory('components')">
+        <i class="fa-solid fa-microchip"></i>
+        <span>IoT & Microcontrollers</span>
+      </div>
+      <div class="cat-item" onclick="filterCategory('security')">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>Pentest & Security</span>
+      </div>
+      <div class="cat-item" onclick="scrollToCustomBuilds()">
+        <i class="fa-solid fa-gears"></i>
+        <span>Custom Prototypes</span>
       </div>
     </div>
-  </section>
+  </nav>
+
+  <main class="main-container">
+
+    <section class="banner-carousel">
+      <div class="banner-slide">
+        <div class="banner-content">
+          <span class="deal-tag">BIG HARDWARE SALE</span>
+          <h1>Next-Gen IoT & Cyber Security Modules</h1>
+          <p>Get up to 40% OFF on ESP32 Boards, SDR Transceivers, and Auditing Gears.</p>
+          <button class="btn-shop-now" onclick="filterCategory('all')">Shop Deals</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="components-section" class="product-shelf">
+      <div class="shelf-header">
+        <div>
+          <h2>🔌 Hardware & IoT Components</h2>
+          <p>Precision microcontrollers, sensors, and wireless modules</p>
+        </div>
+        <button class="btn-view-all" onclick="filterCategory('components')">VIEW ALL</button>
+      </div>
+      <div class="product-grid" id="components-grid"></div>
+    </section>
+
+    <section id="security-section" class="product-shelf">
+      <div class="shelf-header">
+        <div>
+          <h2>🛡️ Cybersecurity & Pentest Tools</h2>
+          <p>Authorized wireless auditing and RF testing hardware</p>
+        </div>
+        <button class="btn-view-all" onclick="filterCategory('security')">VIEW ALL</button>
+      </div>
+      <div class="product-grid" id="security-grid"></div>
+    </section>
+
+    <section id="custom-projects" class="custom-build-banner">
+      <div class="custom-build-content">
+        <div class="custom-text">
+          <h2>🛠️ Need a Custom Hardware or Web Solution?</h2>
+          <p>We engineer tailored IoT systems, custom PCB setups, firmware, and full-stack platforms directly for your requirements.</p>
+        </div>
+        <button class="btn-whatsapp" onclick="sendWhatsAppProject()">
+          <i class="fa-brands fa-whatsapp"></i> Order via WhatsApp
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <div id="cart-drawer" class="cart-drawer">
+    <div class="drawer-header">
+      <h3>My Cart (<span id="drawer-cart-count">0</span>)</h3>
+      <span class="close-drawer" onclick="toggleCartDrawer()">&times;</span>
+    </div>
+    <div id="cart-items-container" class="drawer-body">
+      <p class="empty-msg">Your cart is currently empty.</p>
+    </div>
+    <div class="drawer-footer">
+      <div class="total-row">
+        <span>Total Amount:</span>
+        <strong id="cart-total-price">$0.00</strong>
+      </div>
+      <button class="btn-checkout" onclick="checkoutCart()">Place Order</button>
+    </div>
+  </div>
+  <div id="cart-overlay" class="cart-overlay" onclick="toggleCartDrawer()"></div>
 
   <div id="modal" class="modal-overlay">
     <div class="modal-box">
@@ -72,14 +128,29 @@
         <label for="agree-checkbox">I confirm I will use this equipment legally and ethically.</label>
       </div>
       <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="closeDisclaimerModal()">Cancel</button>
-        <button class="btn warning-btn" onclick="confirmSecurityPurchase()">Agree & Add to Cart</button>
+        <button class="btn-modal-cancel" onclick="closeDisclaimerModal()">Cancel</button>
+        <button class="btn-modal-agree" onclick="confirmSecurityPurchase()">Agree & Add to Cart</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="admin-login-modal" class="modal-overlay">
+    <div class="modal-box" style="text-align: center; max-width: 360px;">
+      <h3>🔒 Admin Portal Authentication</h3>
+      <p style="font-size: 12px; color: #666; margin: 8px 0 16px;">Enter restricted admin panel access credentials.</p>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <input type="text" id="admin-user-input" placeholder="Username" style="padding: 8px; border: 1px solid #ccc; border-radius: 2px;">
+        <input type="password" id="admin-pass-input" placeholder="Password" style="padding: 8px; border: 1px solid #ccc; border-radius: 2px;">
+      </div>
+      <div class="modal-actions" style="margin-top: 16px;">
+        <button class="btn-modal-cancel" onclick="closeAdminLoginModal()">Cancel</button>
+        <button class="btn-modal-agree" onclick="authenticateAdmin()">Login</button>
       </div>
     </div>
   </div>
 
   <footer>
-    <p>&copy; 2026 TechDevs. Built for Developers, Makers & Researchers.</p>
+    <p>&copy; 2026 TechDevs. Engineered for Innovators, Developers & Security Researchers.</p>
   </footer>
 
   <script src="script.js"></script>
