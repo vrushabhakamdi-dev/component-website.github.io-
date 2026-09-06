@@ -88,7 +88,7 @@ function renderAdminTable() {
     tableBody.innerHTML += `
       <tr>
         <td>
-          <img src="${imgUrl}" alt="${product.name}" class="admin-img-preview" onerror="this.src='${DEFAULT_IMG}'">
+          <img src="${imgUrl}" id="admin-img-preview-${product.id}" alt="${product.name}" class="admin-img-preview" onerror="this.src='${DEFAULT_IMG}'">
         </td>
         <td><strong>${product.name}</strong></td>
         <td><span style="text-transform: capitalize;">${product.section}</span></td>
@@ -102,7 +102,10 @@ function renderAdminTable() {
           ₹<input type="number" step="0.01" id="admin-price-${product.id}" class="price-input" value="${parseFloat(product.price).toFixed(2)}">
         </td>
         <td>
-          <button class="btn-save" onclick="updatePriceFromAdmin(${product.id})">Save</button>
+          <input type="file" id="admin-file-${product.id}" accept="image/*" style="font-size: 11px; width: 140px;">
+        </td>
+        <td>
+          <button class="btn-save" onclick="updateProductFromAdmin(${product.id})">Save</button>
           <button class="btn-delete" onclick="deleteProductFromAdmin(${product.id})" title="Delete Product"><i class="fa-solid fa-trash"></i></button>
         </td>
       </tr>
@@ -140,14 +143,13 @@ function addNewProductFromAdmin() {
 
     document.getElementById("new-prod-name").value = "";
     document.getElementById("new-prod-price").value = "";
-    document.getElementById("new-prod-file").value = "";
+    if (fileInput) fileInput.value = "";
     document.getElementById("new-prod-desc").value = "";
 
     renderAdminTable();
     alert(`"${newProduct.name}" added successfully!`);
   };
 
-  // Convert uploaded image file to Base64 String
   if (fileInput && fileInput.files && fileInput.files[0]) {
     const reader = new FileReader();
     reader.onload = function (e) {
@@ -159,19 +161,9 @@ function addNewProductFromAdmin() {
   }
 }
 
-function toggleStockStatus(productId) {
-  const products = getStoredProducts();
-  const product = products.find(p => p.id === productId);
-
-  if (product) {
-    product.inStock = !product.inStock;
-    saveProductsToStorage(products);
-    renderAdminTable();
-  }
-}
-
-function updatePriceFromAdmin(productId) {
+function updateProductFromAdmin(productId) {
   const priceInput = document.getElementById(`admin-price-${productId}`);
+  const fileInput = document.getElementById(`admin-file-${productId}`);
   const newPrice = parseFloat(priceInput.value);
 
   if (isNaN(newPrice) || newPrice < 0) {
@@ -182,11 +174,37 @@ function updatePriceFromAdmin(productId) {
   const products = getStoredProducts();
   const product = products.find(p => p.id === productId);
 
-  if (product) {
+  if (!product) return;
+
+  const saveAndRefresh = (imageString) => {
     product.price = newPrice.toFixed(2);
+    if (imageString) {
+      product.image = imageString;
+    }
     saveProductsToStorage(products);
     renderAdminTable();
-    alert(`Updated price for ${product.name} to ₹${product.price}`);
+    alert(`Updated "${product.name}" successfully!`);
+  };
+
+  if (fileInput && fileInput.files && fileInput.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      saveAndRefresh(e.target.result);
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+  } else {
+    saveAndRefresh(null);
+  }
+}
+
+function toggleStockStatus(productId) {
+  const products = getStoredProducts();
+  const product = products.find(p => p.id === productId);
+
+  if (product) {
+    product.inStock = !product.inStock;
+    saveProductsToStorage(products);
+    renderAdminTable();
   }
 }
 
