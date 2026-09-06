@@ -144,6 +144,42 @@ function renderAdminTable() {
   });
 }
 
+function addNewProductFromAdmin() {
+  const nameInput = document.getElementById("new-prod-name").value.trim();
+  const priceInput = parseFloat(document.getElementById("new-prod-price").value);
+  const sectionInput = document.getElementById("new-prod-section").value;
+  const imageInput = document.getElementById("new-prod-image").value.trim();
+  const descInput = document.getElementById("new-prod-desc").value.trim();
+
+  if (!nameInput || isNaN(priceInput) || priceInput < 0 || !descInput) {
+    alert("Please fill in all required fields with valid values.");
+    return;
+  }
+
+  const products = getStoredProducts();
+
+  const newProduct = {
+    id: Date.now(),
+    name: nameInput,
+    price: priceInput.toFixed(2),
+    desc: descInput,
+    section: sectionInput,
+    inStock: true,
+    image: imageInput !== "" ? imageInput : DEFAULT_IMG
+  };
+
+  products.push(newProduct);
+  saveProductsToStorage(products);
+
+  document.getElementById("new-prod-name").value = "";
+  document.getElementById("new-prod-price").value = "";
+  document.getElementById("new-prod-image").value = "";
+  document.getElementById("new-prod-desc").value = "";
+
+  renderAdminTable();
+  alert(`"${newProduct.name}" has been added to the store!`);
+}
+
 function updatePriceFromAdmin(productId) {
   const priceInput = document.getElementById(`admin-price-${productId}`);
   const newPrice = parseFloat(priceInput.value);
@@ -178,7 +214,7 @@ function scrollToCustomBuilds() {
   document.getElementById("custom-projects").scrollIntoView({ behavior: 'smooth' });
 }
 
-// Shopping Cart Functions
+// Cart Management
 function addToCart(name, price) {
   cart.push({ name, price });
   updateCartUI();
@@ -235,14 +271,12 @@ function checkoutCart() {
   toggleCartDrawer();
 }
 
-// WhatsApp Direct Router
 function sendWhatsAppProject() {
   const phoneNumber = "918380041254";
   const message = "hi techdevs team i want a customized model";
   window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
 }
 
-// Disclaimer Modal
 let pendingSecurityItem = null;
 
 function openDisclaimer(name, price) {
