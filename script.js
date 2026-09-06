@@ -1,6 +1,3 @@
-// Admin Configuration Credentials
-const ADMIN_USER = "admin";
-const ADMIN_PASSWORD = "password123"; 
 const DEFAULT_IMG = "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&auto=format&fit=crop&q=60";
 
 const defaultProducts = [
@@ -11,52 +8,51 @@ const defaultProducts = [
   { id: 5, name: "ESP8266 Deauther Board", price: "15.00", desc: "Open-source Wi-Fi packet research and pentesting board.", section: "security", inStock: true, image: DEFAULT_IMG }
 ];
 
-// 1. Scroll Reveal Observer
-function initScrollObserver() {
-  const elements = document.querySelectorAll('.hidden');
-  if (elements.length === 0) return;
+let cart = [];
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('show');
-      }
-    });
-  }, { threshold: 0.1 });
+// Triple Click Logo Handler
+let logoClickCount = 0;
+let logoClickTimer = null;
 
-  elements.forEach((el) => observer.observe(el));
+function handleLogoClick() {
+  logoClickCount++;
+  
+  if (logoClickCount === 3) {
+    logoClickCount = 0;
+    clearTimeout(logoClickTimer);
+    openAdminLoginModal();
+    return;
+  }
+
+  clearTimeout(logoClickTimer);
+  logoClickTimer = setTimeout(() => {
+    logoClickCount = 0;
+  }, 1500);
 }
 
-// 2. Mouse-Following 3D Card Tilt & Glow Effect Engine
-function init3DTiltCards() {
-  const cards = document.querySelectorAll('.card');
-
-  cards.forEach(card => {
-    card.addEventListener('mousemove', (e) => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
-
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-
-      const rotateX = ((y - centerY) / centerY) * -12;
-      const rotateY = ((x - centerX) / centerX) * 12;
-
-      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-      card.style.setProperty('--glow-x', `${x}px`);
-      card.style.setProperty('--glow-y', `${y}px`);
-    });
-
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
-    });
-  });
+function openAdminLoginModal() {
+  document.getElementById("admin-user-input").value = "";
+  document.getElementById("admin-pass-input").value = "";
+  document.getElementById("admin-login-modal").classList.add("active");
 }
 
-// LocalStorage Helpers
+function closeAdminLoginModal() {
+  document.getElementById("admin-login-modal").classList.remove("active");
+}
+
+function authenticateAdmin() {
+  const username = document.getElementById("admin-user-input").value.trim();
+  const password = document.getElementById("admin-pass-input").value.trim();
+
+  if (username === "admin" && password === "av12345") {
+    closeAdminLoginModal();
+    window.location.href = "admin.html";
+  } else {
+    alert("Invalid Credentials. Access Denied.");
+  }
+}
+
+// LocalStorage Persistence
 function getStoredProducts() {
   const stored = localStorage.getItem("store_products");
   if (!stored) {
@@ -74,91 +70,43 @@ function saveProductsToStorage(products) {
   localStorage.setItem("store_products", JSON.stringify(products));
 }
 
-// Inline Price Edit Toggle Functions
-function togglePriceEdit(id) {
-  const displayContainer = document.getElementById(`price-display-${id}`);
-  const editContainer = document.getElementById(`price-edit-${id}`);
-  if (displayContainer && editContainer) {
-    displayContainer.style.display = "none";
-    editContainer.style.display = "flex";
-  }
-}
+// Render Main Storefront Products (index.html)
+function renderProducts(filterQuery = "", sectionFilter = "all") {
+  const compGrid = document.getElementById("components-grid");
+  const secGrid = document.getElementById("security-grid");
 
-function cancelPriceEdit(id) {
-  const displayContainer = document.getElementById(`price-display-${id}`);
-  const editContainer = document.getElementById(`price-edit-${id}`);
-  if (displayContainer && editContainer) {
-    displayContainer.style.display = "flex";
-    editContainer.style.display = "none";
-  }
-}
-
-function saveCardPrice(id) {
-  const inputEl = document.getElementById(`card-price-input-${id}`);
-  const newPrice = parseFloat(inputEl.value);
-
-  if (isNaN(newPrice) || newPrice < 0) {
-    alert("Please enter a valid price.");
-    return;
-  }
+  if (!compGrid && !secGrid) return; // Not on index.html
 
   const products = getStoredProducts();
-  const product = products.find(p => p.id === id);
-  if (product) {
-    product.price = newPrice.toFixed(2);
-    saveProductsToStorage(products);
-    renderAllProducts();
-  }
-}
-
-// Render Products
-function renderAllProducts() {
-  const products = getStoredProducts();
-  const compGrid = document.querySelector("#components .product-grid");
-  const secGrid = document.querySelector("#security-gear .product-grid");
-  const adminTableBody = document.getElementById("admin-product-rows");
-
   if (compGrid) compGrid.innerHTML = "";
   if (secGrid) secGrid.innerHTML = "";
-  if (adminTableBody) adminTableBody.innerHTML = "";
 
-  products.forEach((product, idx) => {
-    const isSecurity = product.section === "security";
+  products.forEach(product => {
+    const matchesSearch = product.name.toLowerCase().includes(filterQuery.toLowerCase()) || 
+                          product.desc.toLowerCase().includes(filterQuery.toLowerCase());
+    const matchesCategory = sectionFilter === "all" || product.section === sectionFilter;
+
+    if (!matchesSearch || !matchesCategory) return;
+
     const imgUrl = product.image && product.image.trim() !== "" ? product.image : DEFAULT_IMG;
-    const stockBadge = product.inStock 
-      ? `<span class="stock-badge in-stock">In Stock</span>` 
-      : `<span class="stock-badge out-stock">Out of Stock</span>`;
-    
+    const isSecurity = product.section === "security";
+
     const actionBtn = product.inStock
       ? (isSecurity 
-          ? `<button class="btn warning-btn" onclick="openDisclaimer('${product.name}')">Buy Tool</button>`
-          : `<button class="btn btn-primary" onclick="addToCart(this, '${product.name}')">Add to Cart</button>`)
-      : `<button class="btn btn-disabled" disabled>Unavailable</button>`;
+          ? `<button class="btn-add-cart" onclick="openDisclaimer('${product.name}', ${product.price})">Buy Tool</button>`
+          : `<button class="btn-add-cart" onclick="addToCart('${product.name}', ${product.price})">Add to Cart</button>`)
+      : `<button class="btn-add-cart btn-disabled" disabled>Out of Stock</button>`;
 
-    // Front-end Card Template with Inline Price Editor
     const cardHTML = `
-      <div class="card hidden ${isSecurity ? 'security-card' : ''}" style="transition-delay: ${idx * 0.1}s;">
-        <div class="card-img-wrapper">
-          <img src="${imgUrl}" alt="${product.name}" class="product-img" onerror="this.src='${DEFAULT_IMG}'">
+      <div class="fk-card">
+        <div class="card-img-container">
+          <img src="${imgUrl}" alt="${product.name}" onerror="this.src='${DEFAULT_IMG}'">
         </div>
-        <div class="card-header-row">
-          <h3>${product.name}</h3>
-          ${stockBadge}
+        <h3>${product.name}</h3>
+        <p class="desc">${product.desc}</p>
+        <div class="price-box">
+          <span class="curr-price">$${parseFloat(product.price).toFixed(2)}</span>
         </div>
-        <p>${product.desc}</p>
-        
-        <div class="price-row">
-          <div id="price-display-${product.id}" class="price-edit-box" style="display: flex;">
-            <span class="price">$${parseFloat(product.price).toFixed(2)}</span>
-            <button class="btn-icon" onclick="togglePriceEdit(${product.id})" title="Edit Price">✏️</button>
-          </div>
-          <div id="price-edit-${product.id}" class="price-edit-box" style="display: none;">
-            $<input type="number" step="0.01" value="${parseFloat(product.price).toFixed(2)}" id="card-price-input-${product.id}" class="price-input">
-            <button class="btn-sm btn-primary" onclick="saveCardPrice(${product.id})">Save</button>
-            <button class="btn-sm btn-secondary" onclick="cancelPriceEdit(${product.id})">✕</button>
-          </div>
-        </div>
-
         ${actionBtn}
       </div>
     `;
@@ -168,73 +116,144 @@ function renderAllProducts() {
     } else if (compGrid) {
       compGrid.innerHTML += cardHTML;
     }
+  });
+}
 
-    // Admin Panel Table Row
-    if (adminTableBody) {
-      adminTableBody.innerHTML += `
-        <tr>
-          <td>
-            <div class="admin-prod-cell">
-              <img src="${imgUrl}" class="admin-thumb" onerror="this.src='${DEFAULT_IMG}'">
-              <strong>${product.name}</strong>
-            </div>
-          </td>
-          <td>
-            <div style="display: flex; align-items: center; gap: 0.4rem;">
-              $<input type="number" step="0.01" value="${parseFloat(product.price).toFixed(2)}" id="price-input-${product.id}" class="price-edit-input">
-              <button class="btn-sm btn-stock-on" onclick="updateProductPrice(${product.id})">Save</button>
-            </div>
-          </td>
-          <td><span class="tag">${product.section}</span></td>
-          <td>
-            <button class="btn-sm ${product.inStock ? 'btn-stock-on' : 'btn-stock-off'}" onclick="toggleStock(${product.id})">
-              ${product.inStock ? '✓ In Stock' : '✗ Out of Stock'}
-            </button>
-          </td>
-          <td>
-            <button class="btn-sm btn-delete" onclick="deleteProduct(${product.id})">Delete</button>
-          </td>
-        </tr>
-      `;
-    }
+// Render Admin Management Panel (admin.html)
+function renderAdminTable() {
+  const tableBody = document.getElementById("admin-product-rows");
+  if (!tableBody) return; // Not on admin.html
+
+  const products = getStoredProducts();
+  tableBody.innerHTML = "";
+
+  products.forEach(product => {
+    tableBody.innerHTML += `
+      <tr>
+        <td><strong>${product.name}</strong></td>
+        <td><span style="text-transform: capitalize;">${product.section}</span></td>
+        <td>$${parseFloat(product.price).toFixed(2)}</td>
+        <td>
+          $<input type="number" step="0.01" id="admin-price-${product.id}" class="price-input" value="${parseFloat(product.price).toFixed(2)}">
+        </td>
+        <td>
+          <button class="btn-save" onclick="updatePriceFromAdmin(${product.id})">Save Price</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+function updatePriceFromAdmin(productId) {
+  const priceInput = document.getElementById(`admin-price-${productId}`);
+  const newPrice = parseFloat(priceInput.value);
+
+  if (isNaN(newPrice) || newPrice < 0) {
+    alert("Please enter a valid price.");
+    return;
+  }
+
+  const products = getStoredProducts();
+  const product = products.find(p => p.id === productId);
+
+  if (product) {
+    product.price = newPrice.toFixed(2);
+    saveProductsToStorage(products);
+    renderAdminTable();
+    alert(`Price for ${product.name} updated to $${product.price}`);
+  }
+}
+
+// Search & Filter Functions
+function filterProducts() {
+  const query = document.getElementById("fk-search-input").value;
+  renderProducts(query, "all");
+}
+
+function filterCategory(category) {
+  renderProducts("", category);
+}
+
+function scrollToCustomBuilds() {
+  document.getElementById("custom-projects").scrollIntoView({ behavior: 'smooth' });
+}
+
+// Shopping Cart Functions
+function addToCart(name, price) {
+  cart.push({ name, price });
+  updateCartUI();
+}
+
+function updateCartUI() {
+  document.getElementById("cart-count-badge").innerText = cart.length;
+  document.getElementById("drawer-cart-count").innerText = cart.length;
+
+  const container = document.getElementById("cart-items-container");
+  if (cart.length === 0) {
+    container.innerHTML = `<p class="empty-msg">Your cart is currently empty.</p>`;
+    document.getElementById("cart-total-price").innerText = "$0.00";
+    return;
+  }
+
+  let html = "";
+  let total = 0;
+  cart.forEach((item, index) => {
+    total += parseFloat(item.price);
+    html += `
+      <div class="cart-item-row">
+        <div>
+          <strong>${item.name}</strong>
+          <div style="font-size:12px; color:#878787;">$${parseFloat(item.price).toFixed(2)}</div>
+        </div>
+        <button style="border:none; background:none; color:red; cursor:pointer;" onclick="removeFromCart(${index})">&times;</button>
+      </div>
+    `;
   });
 
-  init3DTiltCards();
-  initScrollObserver();
+  container.innerHTML = html;
+  document.getElementById("cart-total-price").innerText = `$${total.toFixed(2)}`;
 }
 
-// Shopping Cart Simulation
-function addToCart(buttonElement, itemName) {
-  const originalText = buttonElement.innerText;
-  buttonElement.innerText = "✓ Added!";
-  buttonElement.style.backgroundColor = "#64ffda";
-  buttonElement.style.color = "#0a192f";
-  
-  setTimeout(() => {
-    buttonElement.innerText = originalText;
-    buttonElement.style.backgroundColor = "";
-    buttonElement.style.color = "";
-  }, 1500);
+function removeFromCart(index) {
+  cart.splice(index, 1);
+  updateCartUI();
 }
 
-// Direct WhatsApp Routing
+function toggleCartDrawer() {
+  document.getElementById("cart-drawer").classList.toggle("open");
+  document.getElementById("cart-overlay").classList.toggle("active");
+}
+
+function checkoutCart() {
+  if (cart.length === 0) {
+    alert("Your cart is empty.");
+    return;
+  }
+  alert("Order placed successfully!");
+  cart = [];
+  updateCartUI();
+  toggleCartDrawer();
+}
+
+// WhatsApp Direct Router
 function sendWhatsAppProject() {
   const phoneNumber = "918380041254";
   const message = "hi techdevs team i want a customized model";
-
   window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
 }
 
-// Pentest Disclaimer Modal Logic
-let selectedSecurityItem = "";
-function openDisclaimer(itemName) {
-  selectedSecurityItem = itemName;
+// Disclaimer Modal
+let pendingSecurityItem = null;
+
+function openDisclaimer(name, price) {
+  pendingSecurityItem = { name, price };
   document.getElementById("agree-checkbox").checked = false;
   document.getElementById("modal").classList.add("active");
 }
 
 function closeDisclaimerModal() {
   document.getElementById("modal").classList.remove("active");
+  pendingSecurityItem = null;
 }
 
 function confirmSecurityPurchase() {
@@ -242,83 +261,14 @@ function confirmSecurityPurchase() {
     alert("Please check the compliance box first.");
     return;
   }
+  if (pendingSecurityItem) {
+    addToCart(pendingSecurityItem.name, pendingSecurityItem.price);
+  }
   closeDisclaimerModal();
-  alert(`${selectedSecurityItem} added to cart. Compliance accepted.`);
 }
 
-// Standard Upward Floating Particles (Non-interactive)
-function initParticleCanvas() {
-  const canvas = document.getElementById("particle-canvas");
-  if (!canvas) return;
-
-  const ctx = canvas.getContext("2d");
-  let width = canvas.width = window.innerWidth;
-  let height = canvas.height = window.innerHeight;
-
-  window.addEventListener("resize", () => {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-    createParticles();
-  });
-
-  let particles = [];
-  const particleCount = 75;
-
-  class Particle {
-    constructor() {
-      this.reset(true);
-    }
-
-    reset(initial = false) {
-      this.x = Math.random() * width;
-      this.y = initial ? Math.random() * height : height + Math.random() * 20;
-      this.radius = Math.random() * 2.5 + 0.8;
-      this.speedY = Math.random() * 1.2 + 0.4;
-      this.speedX = (Math.random() - 0.5) * 0.3;
-      this.opacity = Math.random() * 0.6 + 0.2;
-    }
-
-    update() {
-      this.y -= this.speedY;
-      this.x += this.speedX;
-
-      if (this.y < -this.radius) {
-        this.reset(false);
-      }
-    }
-
-    draw() {
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(100, 255, 218, ${this.opacity})`;
-      ctx.shadowBlur = 6;
-      ctx.shadowColor = "rgba(100, 255, 218, 0.4)";
-      ctx.fill();
-    }
-  }
-
-  function createParticles() {
-    particles = [];
-    for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle());
-    }
-  }
-
-  function animate() {
-    ctx.clearRect(0, 0, width, height);
-    particles.forEach(p => {
-      p.update();
-      p.draw();
-    });
-    requestAnimationFrame(animate);
-  }
-
-  createParticles();
-  animate();
-}
-
-// Initialize Application
+// App Initialization
 document.addEventListener("DOMContentLoaded", () => {
-  renderAllProducts();
-  initParticleCanvas();
+  renderProducts();
+  renderAdminTable();
 });
