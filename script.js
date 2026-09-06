@@ -114,7 +114,7 @@ function addNewProductFromAdmin() {
   const nameInput = document.getElementById("new-prod-name").value.trim();
   const priceInput = parseFloat(document.getElementById("new-prod-price").value);
   const sectionInput = document.getElementById("new-prod-section").value;
-  const imageInput = document.getElementById("new-prod-image").value.trim();
+  const fileInput = document.getElementById("new-prod-file");
   const descInput = document.getElementById("new-prod-desc").value.trim();
 
   if (!nameInput || isNaN(priceInput) || priceInput < 0 || !descInput) {
@@ -122,28 +122,41 @@ function addNewProductFromAdmin() {
     return;
   }
 
-  const products = getStoredProducts();
+  const saveProductWithImage = (imageDataUrl) => {
+    const products = getStoredProducts();
 
-  const newProduct = {
-    id: Date.now(),
-    name: nameInput,
-    price: priceInput.toFixed(2),
-    desc: descInput,
-    section: sectionInput,
-    inStock: true,
-    image: imageInput !== "" ? imageInput : DEFAULT_IMG
+    const newProduct = {
+      id: Date.now(),
+      name: nameInput,
+      price: priceInput.toFixed(2),
+      desc: descInput,
+      section: sectionInput,
+      inStock: true,
+      image: imageDataUrl || DEFAULT_IMG
+    };
+
+    products.push(newProduct);
+    saveProductsToStorage(products);
+
+    document.getElementById("new-prod-name").value = "";
+    document.getElementById("new-prod-price").value = "";
+    document.getElementById("new-prod-file").value = "";
+    document.getElementById("new-prod-desc").value = "";
+
+    renderAdminTable();
+    alert(`"${newProduct.name}" added successfully!`);
   };
 
-  products.push(newProduct);
-  saveProductsToStorage(products);
-
-  document.getElementById("new-prod-name").value = "";
-  document.getElementById("new-prod-price").value = "";
-  document.getElementById("new-prod-image").value = "";
-  document.getElementById("new-prod-desc").value = "";
-
-  renderAdminTable();
-  alert(`"${newProduct.name}" added successfully!`);
+  // Convert uploaded image file to Base64 String
+  if (fileInput && fileInput.files && fileInput.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      saveProductWithImage(e.target.result);
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+  } else {
+    saveProductWithImage(DEFAULT_IMG);
+  }
 }
 
 function toggleStockStatus(productId) {
