@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TechDevs | Store Control Portal</title>
+  <title>TechDevs | Full Admin Dashboard</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     body {
-      background-color: #f4f6f9;
-      color: #333;
+      background-color: #f1f5f9;
+      color: #334155;
     }
     .admin-navbar {
-      background: #1e293b;
+      background: #0f172a;
       color: #fff;
       padding: 16px 24px;
       display: flex;
@@ -33,27 +33,36 @@
       font-weight: bold;
       border-radius: 4px;
       font-size: 13px;
+      transition: background 0.2s;
+    }
+    .btn-store:hover {
+      background: #0284c7;
+      color: #fff;
     }
     .admin-container {
-      max-width: 1000px;
+      max-width: 1100px;
       margin: 30px auto;
       padding: 0 16px;
     }
     .admin-card {
       background: #fff;
-      border-radius: 6px;
+      border-radius: 8px;
       padding: 24px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 24px;
     }
     .admin-card h2 {
       margin-bottom: 8px;
       font-size: 20px;
+      color: #0f172a;
     }
     .admin-card p {
       color: #64748b;
       font-size: 13px;
       margin-bottom: 20px;
     }
+    
+    /* Table Styling */
     .product-table {
       width: 100%;
       border-collapse: collapse;
@@ -62,11 +71,20 @@
     .product-table th, .product-table td {
       padding: 12px 16px;
       border-bottom: 1px solid #e2e8f0;
+      vertical-align: middle;
     }
     .product-table th {
       background: #f8fafc;
       color: #475569;
       font-size: 13px;
+    }
+    .admin-img-preview {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
     }
     .price-input {
       width: 90px;
@@ -75,6 +93,8 @@
       border-radius: 4px;
       font-size: 14px;
     }
+    
+    /* Buttons & Badges */
     .btn-save {
       background: #22c55e;
       color: #fff;
@@ -85,52 +105,97 @@
       font-weight: bold;
       font-size: 12px;
     }
-    .btn-save:hover {
-      background: #16a34a;
+    .btn-save:hover { background: #16a34a; }
+    
+    .btn-delete {
+      background: #ef4444;
+      color: #fff;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-left: 4px;
     }
+    .btn-delete:hover { background: #dc2626; }
+
+    .stock-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      display: inline-block;
+    }
+    .in-stock { background: #dcfce7; color: #15803d; }
+    .out-stock { background: #fee2e2; color: #b91c1c; }
   </style>
 </head>
 <body>
 
   <nav class="admin-navbar">
-    <div class="admin-logo"><i class="fa-solid fa-user-shield"></i> TechDevs Admin Management</div>
-    <a href="index.html" class="btn-store"><i class="fa-solid fa-store"></i> Back to Store</a>
+    <div class="admin-logo"><i class="fa-solid fa-gauge-high"></i> TechDevs Admin Control Panel</div>
+    <a href="index.html" class="btn-store"><i class="fa-solid fa-store"></i> View Live Store</a>
   </nav>
 
   <main class="admin-container">
+    
     <div class="admin-card">
-      <h2>Live Product & Price Management</h2>
-      <p>Add new inventory or modify product prices below. Changes update the main store in real-time.</p>
-
-      <div style="background: #f8fafc; padding: 16px; border: 1px solid #e2e8f0; border-radius: 4px; margin-bottom: 24px;">
-        <h3 style="font-size: 15px; margin-bottom: 12px; color: #1e293b;">➕ Add New Product</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px;">
-          <input type="text" id="new-prod-name" placeholder="Product Name" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
-          <input type="number" step="0.01" id="new-prod-price" placeholder="Price ($)" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
-          <select id="new-prod-section" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+      <h2>➕ Add New Store Item</h2>
+      <p>Fill out the details below to publish a new component or pentest tool to your store.</p>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 12px;">
+        <div>
+          <label style="font-size: 12px; font-weight: bold; display: block; margin-bottom: 4px;">Product Name *</label>
+          <input type="text" id="new-prod-name" placeholder="e.g. ESP32-CAM Module" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+        </div>
+        <div>
+          <label style="font-size: 12px; font-weight: bold; display: block; margin-bottom: 4px;">Price ($) *</label>
+          <input type="number" step="0.01" id="new-prod-price" placeholder="9.99" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+        </div>
+        <div>
+          <label style="font-size: 12px; font-weight: bold; display: block; margin-bottom: 4px;">Category *</label>
+          <select id="new-prod-section" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
             <option value="components">Hardware & IoT Components</option>
             <option value="security">Pentest & Security Tools</option>
           </select>
-          <input type="text" id="new-prod-image" placeholder="Image URL (Optional)" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
         </div>
-        <textarea id="new-prod-desc" placeholder="Product Description..." style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; height: 60px; margin-bottom: 12px; font-family: inherit;"></textarea>
-        <button onclick="addNewProductFromAdmin()" class="btn-save" style="background: #2874f0; padding: 8px 16px; font-size: 13px;">Add Product to Store</button>
+        <div>
+          <label style="font-size: 12px; font-weight: bold; display: block; margin-bottom: 4px;">Image URL</label>
+          <input type="text" id="new-prod-image" placeholder="https://..." style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+        </div>
       </div>
+      
+      <div style="margin-bottom: 16px;">
+        <label style="font-size: 12px; font-weight: bold; display: block; margin-bottom: 4px;">Description *</label>
+        <textarea id="new-prod-desc" placeholder="Provide product specifications or brief description..." style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; height: 60px; font-family: inherit;"></textarea>
+      </div>
+      
+      <button onclick="addNewProductFromAdmin()" class="btn-save" style="background: #2874f0; padding: 10px 20px; font-size: 13px;">Publish Product</button>
+    </div>
+
+    <div class="admin-card">
+      <h2>📦 Manage Inventory & Pricing</h2>
+      <p>Modify prices, toggle availability, or remove items in real-time.</p>
 
       <table class="product-table">
         <thead>
           <tr>
+            <th>Photo</th>
             <th>Product Name</th>
             <th>Category</th>
-            <th>Current Price ($)</th>
-            <th>New Price ($)</th>
-            <th>Action</th>
+            <th>Status (Click to Toggle)</th>
+            <th>Current Price</th>
+            <th>Edit Price</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody id="admin-product-rows">
           </tbody>
       </table>
     </div>
+
   </main>
 
   <script src="script.js"></script>
