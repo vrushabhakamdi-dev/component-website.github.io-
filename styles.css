@@ -15,7 +15,7 @@
   --fk-border: #e0e0e0;
   --fk-footer-bg: #172337;
   --fk-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1);
-  --fk-shadow-hover: 0 4px 12px 0 rgba(0, 0, 0, 0.15);
+  --fk-shadow-hover: 0 8px 16px 0 rgba(0, 0, 0, 0.15);
 }
 
 * {
@@ -32,6 +32,12 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  animation: fadeInBody 0.4s ease-out;
+}
+
+@keyframes fadeInBody {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* ==========================================
@@ -59,13 +65,17 @@ body {
   gap: 20px;
 }
 
-/* Brand Logo */
 .logo-group {
   display: flex;
   flex-direction: column;
   text-decoration: none;
   user-select: none;
   line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.logo-group:hover {
+  transform: scale(1.03);
 }
 
 .logo-text {
@@ -84,7 +94,16 @@ body {
   margin-top: 2px;
 }
 
-/* Search Bar */
+.logo-subtext i {
+  animation: boltPulse 1.5s infinite ease-in-out;
+  display: inline-block;
+}
+
+@keyframes boltPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.25); opacity: 0.8; }
+}
+
 .search-bar {
   flex-grow: 1;
   max-width: 560px;
@@ -94,6 +113,11 @@ body {
   overflow: hidden;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
   height: 36px;
+  transition: box-shadow 0.2s ease;
+}
+
+.search-bar:focus-within {
+  box-shadow: 0 0 0 2px var(--fk-yellow), 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .search-bar input {
@@ -112,14 +136,17 @@ body {
   color: var(--fk-blue);
   cursor: pointer;
   font-size: 15px;
-  transition: color 0.2s;
+  transition: color 0.2s, transform 0.1s;
+}
+
+.search-btn:active {
+  transform: scale(0.9);
 }
 
 .search-btn:hover {
   color: var(--fk-blue-dark);
 }
 
-/* Action Links */
 .header-actions {
   display: flex;
   align-items: center;
@@ -134,6 +161,11 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
+  transition: opacity 0.2s;
+}
+
+.header-link:hover {
+  opacity: 0.85;
 }
 
 .cart-btn {
@@ -145,6 +177,11 @@ body {
   font-weight: 600;
   font-size: 14px;
   position: relative;
+  transition: transform 0.2s ease;
+}
+
+.cart-btn:hover {
+  transform: translateY(-1px);
 }
 
 .badge {
@@ -154,6 +191,7 @@ body {
   padding: 1px 6px;
   font-size: 11px;
   font-weight: 700;
+  transition: transform 0.2s ease;
 }
 
 /* ==========================================
@@ -182,16 +220,22 @@ body {
   color: #333333;
   font-size: 13px;
   font-weight: 500;
-  transition: color 0.2s;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .cat-item:hover {
   color: var(--fk-blue);
+  transform: translateY(-2px);
 }
 
 .cat-item i {
   font-size: 18px;
   color: var(--fk-blue);
+  transition: transform 0.2s ease;
+}
+
+.cat-item:hover i {
+  transform: scale(1.15);
 }
 
 /* ==========================================
@@ -214,6 +258,8 @@ body {
   border-radius: 2px;
   padding: 32px 40px;
   box-shadow: var(--fk-shadow);
+  position: relative;
+  overflow: hidden;
 }
 
 .deal-tag {
@@ -249,6 +295,12 @@ body {
   cursor: pointer;
   border-radius: 2px;
   box-shadow: var(--fk-shadow);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-shop-now:hover {
+  background: #f5dc00;
+  transform: scale(1.05);
 }
 
 /* ==========================================
@@ -290,6 +342,15 @@ body {
   font-size: 13px;
   border-radius: 2px;
   cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s;
+}
+
+.btn-view-all:hover {
+  background-color: var(--fk-blue-dark);
+}
+
+.btn-view-all:active {
+  transform: scale(0.96);
 }
 
 .product-grid {
@@ -298,21 +359,27 @@ body {
   gap: 16px;
 }
 
-/* Flipkart Product Card */
 .fk-card {
   border: 1px solid var(--fk-border);
   border-radius: 2px;
   padding: 16px;
   display: flex;
   flex-direction: column;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
   background: #ffffff;
   text-align: center;
   position: relative;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  animation: cardPopIn 0.3s ease-out;
+}
+
+@keyframes cardPopIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .fk-card:hover {
   box-shadow: var(--fk-shadow-hover);
+  transform: translateY(-4px);
 }
 
 .card-img-container {
@@ -322,12 +389,18 @@ body {
   align-items: center;
   justify-content: center;
   margin-bottom: 12px;
+  overflow: hidden;
 }
 
 .card-img-container img {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.fk-card:hover .card-img-container img {
+  transform: scale(1.08);
 }
 
 .fk-card h3 {
@@ -372,11 +445,15 @@ body {
   border-radius: 2px;
   cursor: pointer;
   width: 100%;
-  transition: background 0.2s;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .btn-add-cart:hover {
   background: #f39200;
+}
+
+.btn-add-cart:active {
+  transform: scale(0.97);
 }
 
 .btn-disabled {
@@ -428,14 +505,20 @@ body {
   align-items: center;
   gap: 8px;
   box-shadow: var(--fk-shadow);
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .btn-whatsapp:hover {
   background: #1eb853;
+  transform: translateY(-2px);
+}
+
+.btn-whatsapp:active {
+  transform: scale(0.96);
 }
 
 /* ==========================================
-   6. CART DRAWER & MODAL DIALOGS
+   6. CART DRAWER & MODALS
    ========================================== */
 .cart-drawer {
   position: fixed;
@@ -446,7 +529,7 @@ body {
   background: #ffffff;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
   z-index: 200;
-  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: right 0.35s cubic-bezier(0.25, 1, 0.5, 1);
   display: flex;
   flex-direction: column;
 }
@@ -467,6 +550,11 @@ body {
 .close-drawer {
   font-size: 22px;
   cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.close-drawer:hover {
+  transform: rotate(90deg);
 }
 
 .drawer-body {
@@ -488,6 +576,12 @@ body {
   align-items: center;
   padding: 10px 0;
   border-bottom: 1px solid var(--fk-border);
+  animation: slideInItem 0.25s ease-out;
+}
+
+@keyframes slideInItem {
+  from { opacity: 0; transform: translateX(15px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 .drawer-footer {
@@ -513,6 +607,15 @@ body {
   font-weight: 700;
   border-radius: 2px;
   cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-checkout:hover {
+  background: #e55613;
+}
+
+.btn-checkout:active {
+  transform: scale(0.98);
 }
 
 .cart-overlay {
@@ -524,13 +627,15 @@ body {
   background: rgba(0, 0, 0, 0.5);
   z-index: 150;
   display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .cart-overlay.active {
   display: block;
+  opacity: 1;
 }
 
-/* Modals */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -543,7 +648,7 @@ body {
   align-items: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.25s ease;
   z-index: 300;
 }
 
@@ -559,6 +664,12 @@ body {
   max-width: 440px;
   width: 90%;
   box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  transform: scale(0.9);
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-overlay.active .modal-box {
+  transform: scale(1);
 }
 
 .checkbox-container {
@@ -581,6 +692,11 @@ body {
   padding: 8px 16px;
   cursor: pointer;
   font-size: 13px;
+  transition: background-color 0.2s;
+}
+
+.btn-modal-cancel:hover {
+  background-color: #f8f8f8;
 }
 
 .btn-modal-agree {
@@ -591,6 +707,15 @@ body {
   cursor: pointer;
   font-weight: 700;
   font-size: 13px;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-modal-agree:hover {
+  background-color: #e55613;
+}
+
+.btn-modal-agree:active {
+  transform: scale(0.96);
 }
 
 /* ==========================================
